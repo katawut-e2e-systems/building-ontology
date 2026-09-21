@@ -15,3 +15,6 @@
     <https://example.com/building-management/modules/hvac-systems> ,
     <https://example.com/building-management/modules/electrical-systems> ,
     <https://example.com/building-management/modules/controls> .
+
+bldg:Building_A
+  brick:hasPart bldg:AHU_01 , bldg:Panel_LP1 , bldg:BMS_Server_01 .

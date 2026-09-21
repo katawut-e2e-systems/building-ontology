@@ -20,8 +20,7 @@ bldg:Campus_01
 bldg:Building_A
   a bot:Building , brick:Building ;
   rdfs:label "HQ Building A" ;
-  bot:hasStorey bldg:Floor_01 , bldg:Floor_02 ;
-  brick:hasPart bldg:AHU_01 , bldg:Panel_LP1 , bldg:BMS_Server_01 .
+  bot:hasStorey bldg:Floor_01 , bldg:Floor_02 .
 
 bldg:Floor_01 a bot:Storey , brick:Floor ; rdfs:label "Floor 01" ; bot:hasSpace bldg:Lobby_101 , bldg:Office_102 .
 bldg:Floor_02 a bot:Storey , brick:Floor ; rdfs:label "Floor 02" ; bot:hasSpace bldg:Conference_201 .
