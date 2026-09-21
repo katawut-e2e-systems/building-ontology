@@ -1,0 +1,23 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+bldg:AHU_01
+  a brick:AHU ;
+  rdfs:label "AHU-01" ;
+  brick:feeds bldg:VAV_01 , bldg:VAV_02 .
+
+bldg:VAV_01
+  a brick:VAV ;
+  rdfs:label "VAV-01" ;
+  brick:hasLocation bldg:Office_102 ;
+  brick:hasPoint bldg:Office_102_Zone_Temp_Sensor .
+
+bldg:VAV_02
+  a brick:VAV ;
+  rdfs:label "VAV-02" ;
+  brick:hasLocation bldg:Conference_201 ;
+  brick:hasPoint bldg:Conference_201_Zone_Temp_Sensor .
+
+bldg:Office_102_Zone_Temp_Sensor a brick:Zone_Air_Temperature_Sensor ; rdfs:label "Office 102 Zone Temp Sensor" .
+bldg:Conference_201_Zone_Temp_Sensor a brick:Zone_Air_Temperature_Sensor ; rdfs:label "Conference 201 Zone Temp Sensor" .

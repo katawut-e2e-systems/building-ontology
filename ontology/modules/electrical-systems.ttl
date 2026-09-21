@@ -1,0 +1,17 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+bldg:Panel_LP1
+  a brick:Electrical_Panel ;
+  rdfs:label "Lighting Panel LP-1" ;
+  brick:hasPoint bldg:LP1_Energy_Meter .
+
+bldg:LP1_Energy_Meter
+  a brick:Electric_Energy_Meter ;
+  rdfs:label "LP-1 Energy Meter" .
+
+bldg:Lighting_Group_Floor_01
+  a brick:Luminaire ;
+  rdfs:label "Floor 01 Lighting Group" ;
+  brick:hasLocation bldg:Floor_01 .

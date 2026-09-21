@@ -1,0 +1,17 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bot: <https://w3id.org/bot#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+<https://example.com/building-management>
+  a owl:Ontology ;
+  rdfs:label "Building Management Ontology (Brick + BOT)" ;
+  owl:imports
+    <https://w3id.org/bot#> ,
+    <https://brickschema.org/schema/Brick#> ,
+    <./modules/site-structure.ttl> ,
+    <./modules/hvac-systems.ttl> ,
+    <./modules/electrical-systems.ttl> ,
+    <./modules/controls.ttl> .

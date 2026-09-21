@@ -1,0 +1,23 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bot: <https://w3id.org/bot#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+bldg:Campus_01
+  a brick:Campus ;
+  rdfs:label "Corporate Campus" ;
+  bot:hasBuilding bldg:Building_A .
+
+bldg:Building_A
+  a bot:Building , brick:Building ;
+  rdfs:label "HQ Building A" ;
+  bot:hasStorey bldg:Floor_01 , bldg:Floor_02 ;
+  brick:hasPart bldg:AHU_01 , bldg:Panel_LP1 , bldg:BMS_Server_01 .
+
+bldg:Floor_01 a bot:Storey , brick:Floor ; rdfs:label "Floor 01" ; bot:hasSpace bldg:Lobby_101 , bldg:Office_102 .
+bldg:Floor_02 a bot:Storey , brick:Floor ; rdfs:label "Floor 02" ; bot:hasSpace bldg:Conference_201 .
+
+bldg:Lobby_101 a bot:Space , brick:Room ; rdfs:label "Lobby 101" .
+bldg:Office_102 a bot:Space , brick:Office ; rdfs:label "Office 102" .
+bldg:Conference_201 a bot:Space , brick:Conference_Room ; rdfs:label "Conference Room 201" .

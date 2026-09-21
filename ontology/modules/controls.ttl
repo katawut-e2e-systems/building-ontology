@@ -1,0 +1,17 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+bldg:BMS_Server_01
+  a brick:Server ;
+  rdfs:label "BMS Server 01" ;
+  brick:hasPart bldg:AHU_Controller_01 .
+
+bldg:AHU_Controller_01
+  a brick:HVAC_Equipment ;
+  rdfs:label "AHU Controller 01" ;
+  brick:hasPoint bldg:AHU_01_Supply_Air_Temperature_Sensor .
+
+bldg:AHU_01_Supply_Air_Temperature_Sensor
+  a brick:Supply_Air_Temperature_Sensor ;
+  rdfs:label "AHU-01 Supply Air Temp Sensor" .
