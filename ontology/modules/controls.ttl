@@ -17,8 +17,7 @@ bldg:BMS_Server_01
 
 bldg:AHU_Controller_01
   a brick:Controller ;
-  rdfs:label "AHU Controller 01" ;
-  brick:hasPoint bldg:AHU_01_Supply_Air_Temperature_Sensor .
+  rdfs:label "AHU Controller 01" .
 
 bldg:AHU_01_Supply_Air_Temperature_Sensor
   a brick:Supply_Air_Temperature_Sensor ;
