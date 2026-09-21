@@ -8,6 +8,7 @@
   rdfs:label "Building management - controls module" ;
   owl:imports
     <https://brickschema.org/schema/Brick#> ,
+    <https://example.com/building-management/modules/site-structure> ,
     <https://example.com/building-management/modules/hvac-systems> .
 
 bldg:BMS_Server_01
@@ -26,3 +27,6 @@ bldg:AHU_01_Supply_Air_Temperature_Sensor
 
 bldg:AHU_01
   brick:hasPoint bldg:AHU_01_Supply_Air_Temperature_Sensor .
+
+bldg:Building_A
+  brick:hasPart bldg:BMS_Server_01 .
