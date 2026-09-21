@@ -1,7 +1,5 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix brick: <https://brickschema.org/schema/Brick#> .
-@prefix bldg: <https://example.com/building-management#> .
 
 <https://example.com/building-management/modules/composition>
   a owl:Ontology ;
@@ -12,6 +10,3 @@
     <https://example.com/building-management/modules/hvac-systems> ,
     <https://example.com/building-management/modules/electrical-systems> ,
     <https://example.com/building-management/modules/controls> .
-
-bldg:Building_A
-  brick:hasPart bldg:AHU_01 , bldg:Panel_LP1 , bldg:BMS_Server_01 .

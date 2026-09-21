@@ -22,4 +22,4 @@ ontology/
 - `ontology/modules/hvac-systems.ttl`: HVAC assets, relationships, and sensing points.
 - `ontology/modules/electrical-systems.ttl`: electrical panels, metering, and lighting assets.
 - `ontology/modules/controls.ttl`: BMS/control-level assets and related telemetry points.
-- `ontology/modules/composition.ttl`: cross-module composition links (e.g., building-to-system asset membership).
+- `ontology/modules/composition.ttl`: cross-module assembly layer that imports and composes system/site modules.
