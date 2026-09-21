@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
+from .csv_loader import IRI_PATTERN
 from .models import OntologyModule, Prefix, Triple
 
 
@@ -76,9 +77,23 @@ def _used_prefixes_in_ontology_block() -> set[str]:
 
 
 def _extract_prefixes(value: str) -> set[str]:
-    if value == "a" or ":" not in value or value.startswith("<"):
+    if value == "a" or ":" not in value or value.startswith("<") or _is_bare_iri(value):
         return set()
     return {value.split(":", maxsplit=1)[0]}
+
+
+def _render_resource(value: str, allow_a: bool = False) -> str:
+    if allow_a and value == "a":
+        return value
+    if value.startswith("<"):
+        return value
+    if _is_bare_iri(value):
+        return f"<{value}>"
+    return value
+
+
+def _is_bare_iri(value: str) -> bool:
+    return bool(IRI_PATTERN.match(value)) and ("://" in value or value.startswith("urn:"))
 
 
 def _group_triples_by_subject(triples: list[Triple]) -> OrderedDict[str, list[Triple]]:
@@ -89,11 +104,12 @@ def _group_triples_by_subject(triples: list[Triple]) -> OrderedDict[str, list[Tr
 
 
 def _render_subject_block(subject: str, triples: list[Triple]) -> list[str]:
-    lines = [subject]
+    lines = [_render_resource(subject)]
     for index, triple in enumerate(triples):
         terminator = " ;" if index < len(triples) - 1 else " ."
+        predicate = _render_resource(triple.predicate, allow_a=True)
         rendered_object = _render_object(triple)
-        lines.append(f"  {triple.predicate} {rendered_object}{terminator}")
+        lines.append(f"  {predicate} {rendered_object}{terminator}")
     return lines
 
 

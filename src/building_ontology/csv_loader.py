@@ -19,7 +19,7 @@ REQUIRED_PREFIX_COLUMNS = {"prefix", "namespace"}
 REQUIRED_ONTOLOGY_COLUMNS = {"module_id", "ontology_uri", "label", "output_file", "imports"}
 REQUIRED_TRIPLE_COLUMNS = {"module_id", "subject", "predicate", "object", "object_kind", "datatype", "language"}
 ALLOWED_OBJECT_KINDS = {"qname", "iri", "literal"}
-QNAME_PATTERN = re.compile(r"^[A-Za-z_][\w.-]*:[^\s]+$")
+QNAME_PATTERN = re.compile(r"^[A-Za-z_][\w.-]*:[A-Za-z0-9_][\w.-]*$")
 LANGUAGE_PATTERN = re.compile(r"^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$")
 IRI_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"{}|^`\\]+$')
 DISALLOWED_LITERAL_CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
@@ -149,11 +149,11 @@ def _read_rows(path: Path, required_columns: set[str]) -> list[dict[str, str]]:
 
 
 def _is_valid_subject(value: str) -> bool:
-    return _is_valid_qname(value) or _is_wrapped_iri(value)
+    return _is_valid_qname(value) or _is_wrapped_iri(value) or _is_bare_iri(value)
 
 
 def _is_valid_predicate(value: str) -> bool:
-    return value == "a" or _is_valid_qname(value) or _is_wrapped_iri(value)
+    return value == "a" or _is_valid_qname(value) or _is_wrapped_iri(value) or _is_bare_iri(value)
 
 
 def _is_valid_qname(value: str) -> bool:
@@ -165,8 +165,12 @@ def _is_wrapped_iri(value: str) -> bool:
 
 
 def _validate_declared_prefix(path: Path, value: str, declared_prefixes: set[str], field_name: str) -> None:
-    if value == "a" or value.startswith("<") or ":" not in value:
+    if value == "a" or value.startswith("<") or ":" not in value or _is_bare_iri(value):
         return
     prefix = value.split(":", maxsplit=1)[0]
     if prefix not in declared_prefixes:
         raise CsvProjectError(f"Undeclared prefix '{prefix}' used in {field_name} '{value}' in {path.name}")
+
+
+def _is_bare_iri(value: str) -> bool:
+    return bool(IRI_PATTERN.match(value)) and ("://" in value or value.startswith("urn:"))

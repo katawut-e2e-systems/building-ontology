@@ -268,6 +268,31 @@ class OntologyBuildTests(unittest.TestCase):
                 module,
             )
 
+    def test_renderer_wraps_bare_iris_in_subjects_and_predicates(self) -> None:
+        module = OntologyModule(
+            module_id="iri-module",
+            ontology_uri="https://example.com/iri-module",
+            label="IRI Module",
+            output_file="iri.ttl",
+            triples=[
+                Triple(
+                    module_id="iri-module",
+                    subject="https://example.com/assets/ahu-1",
+                    predicate="https://example.com/schema/feeds",
+                    object_value="https://example.com/assets/vav-1",
+                    object_kind="iri",
+                )
+            ],
+        )
+
+        rendered = render_module(
+            [Prefix(prefix="rdfs", namespace="http://www.w3.org/2000/01/rdf-schema#"), Prefix(prefix="owl", namespace="http://www.w3.org/2002/07/owl#")],
+            module,
+        )
+        self.assertIn("<https://example.com/assets/ahu-1>", rendered)
+        self.assertIn("<https://example.com/schema/feeds>", rendered)
+        self.assertIn("<https://example.com/assets/vav-1>", rendered)
+
 
 if __name__ == "__main__":
     unittest.main()
