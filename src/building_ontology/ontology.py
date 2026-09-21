@@ -27,6 +27,8 @@ def build_ontology_project(input_dir: str | Path, output_dir: str | Path) -> lis
 
 
 def _resolve_output_path(output_root: Path, output_file: str) -> Path:
+    if not output_file.strip():
+        raise ValueError("Ontology output path must not be empty")
     relative_path = Path(output_file)
     if relative_path.is_absolute():
         raise ValueError(f"Ontology output path must be relative: {output_file}")

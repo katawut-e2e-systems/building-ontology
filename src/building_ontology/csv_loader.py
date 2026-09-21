@@ -22,6 +22,7 @@ ALLOWED_OBJECT_KINDS = {"qname", "iri", "literal"}
 QNAME_PATTERN = re.compile(r"^[A-Za-z_][\w.-]*:[^\s]+$")
 LANGUAGE_PATTERN = re.compile(r"^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$")
 IRI_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"{}|^`\\]+$')
+DISALLOWED_LITERAL_CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
 def load_project(input_dir: Path) -> OntologyProject:
@@ -63,6 +64,11 @@ def _load_modules(path: Path) -> dict[str, OntologyModule]:
         if not ontology_uri or not label or not output_file:
             raise CsvProjectError(f"Invalid ontology row in {path.name}: {row}")
         imports = [value.strip() for value in row["imports"].split("|") if value.strip()]
+        if not IRI_PATTERN.match(ontology_uri):
+            raise CsvProjectError(f"Invalid ontology_uri '{ontology_uri}' in {path.name}")
+        for import_uri in imports:
+            if not IRI_PATTERN.match(import_uri):
+                raise CsvProjectError(f"Invalid import IRI '{import_uri}' in {path.name}")
         modules[module_id] = OntologyModule(
             module_id=module_id,
             ontology_uri=ontology_uri,
@@ -113,6 +119,8 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule], declared_prefi
             raise CsvProjectError(f"Invalid language tag '{language}' in {path.name}")
         if datatype:
             _validate_declared_prefix(path, datatype, declared_prefixes, "datatype")
+        if object_kind == "literal" and DISALLOWED_LITERAL_CONTROL_CHARS.search(object_value):
+            raise CsvProjectError(f"Literal object contains unsupported control characters in {path.name}")
         modules[module_id].triples.append(
             Triple(
                 module_id=module_id,

@@ -60,7 +60,7 @@ def _render_ontology_block(module: OntologyModule) -> list[str]:
 
 
 def _used_prefixes(module: OntologyModule) -> set[str]:
-    used = {"owl", "rdfs"}
+    used = _used_prefixes_in_ontology_block()
     for triple in module.triples:
         used.update(_extract_prefixes(triple.subject))
         used.update(_extract_prefixes(triple.predicate))
@@ -69,6 +69,10 @@ def _used_prefixes(module: OntologyModule) -> set[str]:
         if triple.datatype:
             used.update(_extract_prefixes(triple.datatype))
     return used
+
+
+def _used_prefixes_in_ontology_block() -> set[str]:
+    return {"owl", "rdfs"}
 
 
 def _extract_prefixes(value: str) -> set[str]:

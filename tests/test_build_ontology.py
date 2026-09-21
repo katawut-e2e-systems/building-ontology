@@ -8,7 +8,9 @@ from pathlib import Path
 
 from building_ontology.cli import main
 from building_ontology.csv_loader import CsvProjectError, load_project
+from building_ontology.models import OntologyModule, Prefix, Triple
 from building_ontology.ontology import build_ontology_project
+from building_ontology.ttl_writer import TurtleRenderError, render_module
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INPUT_DIR = REPO_ROOT / "data" / "building-management-csv"
@@ -77,6 +79,23 @@ class CsvLoaderTests(unittest.TestCase):
             (temp_path / "triples.csv").write_text(
                 "module_id,subject,predicate,object,object_kind,datatype,language\n"
                 "root,ex:s,ex:p,missing:Thing,qname,,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
+    def test_rejects_literal_with_unsupported_control_character(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,broken\x00value,literal,,\n",
                 encoding="utf-8",
             )
 
@@ -162,6 +181,21 @@ class OntologyBuildTests(unittest.TestCase):
 
             self.assertEqual(error.exception.code, 1)
             self.assertIn("Missing required CSV file", stderr.getvalue())
+
+    def test_renderer_rejects_undeclared_prefix_usage(self) -> None:
+        module = OntologyModule(
+            module_id="custom-module",
+            ontology_uri="https://example.com/custom-module",
+            label="Custom Module",
+            output_file="custom.ttl",
+            triples=[Triple(module_id="custom-module", subject="missing:Asset_01", predicate="a", object_value="missing:Thing")],
+        )
+
+        with self.assertRaises(TurtleRenderError):
+            render_module(
+                [Prefix(prefix="rdfs", namespace="http://www.w3.org/2000/01/rdf-schema#"), Prefix(prefix="owl", namespace="http://www.w3.org/2002/07/owl#")],
+                module,
+            )
 
 
 if __name__ == "__main__":
