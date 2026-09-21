@@ -11,7 +11,8 @@ ontology/
     ├── site-structure.ttl
     ├── hvac-systems.ttl
     ├── electrical-systems.ttl
-    └── controls.ttl
+    ├── controls.ttl
+    └── composition.ttl
 ```
 
 ## File responsibilities
@@ -21,3 +22,4 @@ ontology/
 - `ontology/modules/hvac-systems.ttl`: HVAC assets, relationships, and sensing points.
 - `ontology/modules/electrical-systems.ttl`: electrical panels, metering, and lighting assets.
 - `ontology/modules/controls.ttl`: BMS/control-level assets and related telemetry points.
+- `ontology/modules/composition.ttl`: cross-module composition links (e.g., building-to-system asset membership).

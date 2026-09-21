@@ -29,6 +29,3 @@ bldg:VAV_02
 
 bldg:Office_102_Zone_Temp_Sensor a brick:Zone_Air_Temperature_Sensor ; rdfs:label "Office 102 Zone Temp Sensor" ; brick:hasLocation bldg:Office_102 .
 bldg:Conference_201_Zone_Temp_Sensor a brick:Zone_Air_Temperature_Sensor ; rdfs:label "Conference 201 Zone Temp Sensor" ; brick:hasLocation bldg:Conference_201 .
-
-bldg:Building_A
-  brick:hasPart bldg:AHU_01 .

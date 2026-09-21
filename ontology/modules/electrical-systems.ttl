@@ -23,6 +23,3 @@ bldg:Lighting_Group_Floor_01
   a brick:Lighting_System ;
   rdfs:label "Floor 01 Lighting Group" ;
   brick:hasLocation bldg:Floor_01 .
-
-bldg:Building_A
-  brick:hasPart bldg:Panel_LP1 .
