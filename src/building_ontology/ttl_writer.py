@@ -77,7 +77,7 @@ def _used_prefixes_in_ontology_block() -> set[str]:
 
 
 def _extract_prefixes(value: str) -> set[str]:
-    if value == "a" or ":" not in value or value.startswith("<") or _is_bare_iri(value):
+    if value == "a" or ":" not in value or _is_wrapped_iri(value) or _is_bare_iri(value):
         return set()
     return {value.split(":", maxsplit=1)[0]}
 
@@ -85,15 +85,21 @@ def _extract_prefixes(value: str) -> set[str]:
 def _render_resource(value: str, allow_a: bool = False) -> str:
     if allow_a and value == "a":
         return value
-    if value.startswith("<"):
+    if _is_wrapped_iri(value):
         return value
     if _is_bare_iri(value):
         return f"<{value}>"
+    if value.startswith("<"):
+        raise TurtleRenderError(f"Invalid wrapped IRI: {value}")
     return value
 
 
 def _is_bare_iri(value: str) -> bool:
     return bool(IRI_PATTERN.match(value)) and ("://" in value or value.startswith("urn:"))
+
+
+def _is_wrapped_iri(value: str) -> bool:
+    return value.startswith("<") and value.endswith(">") and _is_bare_iri(value[1:-1])
 
 
 def _group_triples_by_subject(triples: list[Triple]) -> OrderedDict[str, list[Triple]]:

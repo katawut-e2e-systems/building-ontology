@@ -293,6 +293,25 @@ class OntologyBuildTests(unittest.TestCase):
         self.assertIn("<https://example.com/schema/feeds>", rendered)
         self.assertIn("<https://example.com/assets/vav-1>", rendered)
 
+    def test_renderer_rejects_malformed_wrapped_iri(self) -> None:
+        module = OntologyModule(
+            module_id="iri-module",
+            ontology_uri="https://example.com/iri-module",
+            label="IRI Module",
+            output_file="iri.ttl",
+            triples=[Triple(module_id="iri-module", subject="<https://example.com/assets/ahu-1", predicate="a", object_value="brick:AHU")],
+        )
+
+        with self.assertRaises(TurtleRenderError):
+            render_module(
+                [
+                    Prefix(prefix="rdfs", namespace="http://www.w3.org/2000/01/rdf-schema#"),
+                    Prefix(prefix="owl", namespace="http://www.w3.org/2002/07/owl#"),
+                    Prefix(prefix="brick", namespace="https://brickschema.org/schema/Brick#"),
+                ],
+                module,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

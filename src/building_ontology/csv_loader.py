@@ -165,7 +165,7 @@ def _is_wrapped_iri(value: str) -> bool:
 
 
 def _validate_declared_prefix(path: Path, value: str, declared_prefixes: set[str], field_name: str) -> None:
-    if value == "a" or value.startswith("<") or ":" not in value or _is_bare_iri(value):
+    if value == "a" or _is_wrapped_iri(value) or ":" not in value or _is_bare_iri(value):
         return
     prefix = value.split(":", maxsplit=1)[0]
     if prefix not in declared_prefixes:
