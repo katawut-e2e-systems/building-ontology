@@ -14,6 +14,7 @@ def load_ontology_project(input_dir: str | Path) -> OntologyProject:
 def build_ontology_project(input_dir: str | Path, output_dir: str | Path) -> list[Path]:
     project = load_ontology_project(input_dir)
     output_root = Path(output_dir).resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
     written_files: list[Path] = []
 
     for module in project.modules:

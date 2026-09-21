@@ -7,8 +7,7 @@
 <https://example.com/building-management/modules/site-structure>
   a owl:Ontology ;
   rdfs:label "Building management - site structure module" ;
-  owl:imports
-    <https://w3id.org/bot#> ,
+  owl:imports <https://w3id.org/bot#> ,
     <https://brickschema.org/schema/Brick#> .
 
 bldg:Campus_01

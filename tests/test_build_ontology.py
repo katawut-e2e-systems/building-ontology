@@ -72,6 +72,10 @@ class OntologyBuildTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             written_files = build_ontology_project(INPUT_DIR, temp_dir)
             self.assertTrue(written_files)
+            generated_files = {path.relative_to(temp_dir) for path in Path(temp_dir).rglob("*.ttl")}
+            expected_files = {path.relative_to(EXPECTED_DIR) for path in EXPECTED_DIR.rglob("*.ttl")}
+            self.assertEqual(generated_files, expected_files)
+            self.assertEqual({path.relative_to(temp_dir) for path in written_files}, expected_files)
 
             for expected_path in EXPECTED_DIR.rglob("*.ttl"):
                 generated_path = Path(temp_dir) / expected_path.relative_to(EXPECTED_DIR)

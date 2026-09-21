@@ -39,10 +39,16 @@ def _render_ontology_block(module: OntologyModule) -> list[str]:
         f'  rdfs:label "{_escape_literal(module.label)}" ;',
     ]
     if module.imports:
-        lines.append("  owl:imports")
-        for index, import_uri in enumerate(module.imports):
-            terminator = " ," if index < len(module.imports) - 1 else " ."
-            lines.append(f"    <{import_uri}>{terminator}")
+        first_import, *remaining_imports = module.imports
+        lines.append(f"  owl:imports <{first_import}>")
+        for import_uri in remaining_imports[:-1]:
+            lines[-1] = f"{lines[-1]} ,"
+            lines.append(f"    <{import_uri}>")
+        if remaining_imports:
+            lines[-1] = f"{lines[-1]} ,"
+            lines.append(f"    <{remaining_imports[-1]}> .")
+        else:
+            lines[-1] = f"{lines[-1]} ."
     else:
         lines[-1] = lines[-1][:-1] + "."
     return lines

@@ -19,8 +19,9 @@ REQUIRED_PREFIX_COLUMNS = {"prefix", "namespace"}
 REQUIRED_ONTOLOGY_COLUMNS = {"module_id", "ontology_uri", "label", "output_file", "imports"}
 REQUIRED_TRIPLE_COLUMNS = {"module_id", "subject", "predicate", "object", "object_kind", "datatype", "language"}
 ALLOWED_OBJECT_KINDS = {"qname", "iri", "literal"}
-QNAME_PATTERN = re.compile(r"^[A-Za-z_][\\w.-]*:[^\\s]+$")
+QNAME_PATTERN = re.compile(r"^[A-Za-z_][\w.-]*:[^\s]+$")
 LANGUAGE_PATTERN = re.compile(r"^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$")
+IRI_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"{}|^`\\]+$')
 
 
 def load_project(input_dir: Path) -> OntologyProject:
@@ -87,12 +88,20 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
         object_value = row["object"].strip()
         if not subject or not predicate or not object_value:
             raise CsvProjectError(f"Invalid triple row in {path.name}: {row}")
+        if not _is_valid_subject(subject):
+            raise CsvProjectError(f"Invalid subject '{subject}' in {path.name}")
+        if not _is_valid_predicate(predicate):
+            raise CsvProjectError(f"Invalid predicate '{predicate}' in {path.name}")
         datatype = row["datatype"].strip() or None
         language = row["language"].strip() or None
         if object_kind != "literal" and (datatype or language):
             raise CsvProjectError("Only literal objects can define datatype or language")
         if datatype and language:
             raise CsvProjectError("Literal objects cannot define both datatype and language")
+        if object_kind == "qname" and not QNAME_PATTERN.match(object_value):
+            raise CsvProjectError(f"Invalid QName object '{object_value}' in {path.name}")
+        if object_kind == "iri" and not IRI_PATTERN.match(object_value):
+            raise CsvProjectError(f"Invalid IRI object '{object_value}' in {path.name}")
         if datatype and not QNAME_PATTERN.match(datatype):
             raise CsvProjectError(f"Invalid datatype QName '{datatype}' in {path.name}")
         if language and not LANGUAGE_PATTERN.match(language):
@@ -122,3 +131,19 @@ def _read_rows(path: Path, required_columns: set[str]) -> list[dict[str, str]]:
             missing_columns = ", ".join(sorted(missing))
             raise CsvProjectError(f"Missing required columns in {path.name}: {missing_columns}")
         return [dict(row) for row in reader]
+
+
+def _is_valid_subject(value: str) -> bool:
+    return _is_valid_qname(value) or _is_wrapped_iri(value)
+
+
+def _is_valid_predicate(value: str) -> bool:
+    return value == "a" or _is_valid_qname(value) or _is_wrapped_iri(value)
+
+
+def _is_valid_qname(value: str) -> bool:
+    return bool(QNAME_PATTERN.match(value))
+
+
+def _is_wrapped_iri(value: str) -> bool:
+    return value.startswith("<") and value.endswith(">") and bool(IRI_PATTERN.match(value[1:-1]))
