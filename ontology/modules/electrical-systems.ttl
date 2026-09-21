@@ -6,8 +6,7 @@
 <https://example.com/building-management/modules/electrical-systems>
   a owl:Ontology ;
   rdfs:label "Building management - electrical systems module" ;
-  owl:imports
-    <https://brickschema.org/schema/Brick#> ,
+  owl:imports <https://brickschema.org/schema/Brick#> ,
     <https://example.com/building-management/modules/site-structure> .
 
 bldg:Panel_LP1
