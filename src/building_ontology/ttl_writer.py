@@ -11,7 +11,10 @@ class TurtleRenderError(ValueError):
 
 def render_module(prefixes: list[Prefix], module: OntologyModule) -> str:
     lines: list[str] = []
+    used_prefixes = _used_prefixes(module)
     for prefix in prefixes:
+        if prefix.prefix not in used_prefixes:
+            continue
         lines.append(f"@prefix {prefix.prefix}: <{prefix.namespace}> .")
 
     lines.append("")
@@ -43,6 +46,24 @@ def _render_ontology_block(module: OntologyModule) -> list[str]:
     else:
         lines[-1] = lines[-1][:-1] + "."
     return lines
+
+
+def _used_prefixes(module: OntologyModule) -> set[str]:
+    used = {"owl", "rdfs"}
+    for triple in module.triples:
+        used.update(_extract_prefixes(triple.subject))
+        used.update(_extract_prefixes(triple.predicate))
+        if triple.object_kind == "qname":
+            used.update(_extract_prefixes(triple.object_value))
+        if triple.datatype:
+            used.update(_extract_prefixes(triple.datatype))
+    return used
+
+
+def _extract_prefixes(value: str) -> set[str]:
+    if value == "a" or ":" not in value or value.startswith("<"):
+        return set()
+    return {value.split(":", maxsplit=1)[0]}
 
 
 def _group_triples_by_subject(triples: list[Triple]) -> OrderedDict[str, list[Triple]]:

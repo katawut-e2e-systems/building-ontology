@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from contextlib import redirect_stderr
+from io import StringIO
 from pathlib import Path
 
+from building_ontology.cli import main
 from building_ontology.csv_loader import CsvProjectError, load_project
 from building_ontology.ontology import build_ontology_project
 
@@ -40,6 +43,23 @@ class CsvLoaderTests(unittest.TestCase):
             (temp_path / "triples.csv").write_text(
                 "module_id,subject,predicate,object,object_kind,datatype,language\n"
                 "root,ex:s,ex:p,https://example.com/object,iri,xsd:string,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
+    def test_rejects_invalid_language_tag(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,label,literal,,english_us!\n",
                 encoding="utf-8",
             )
 
@@ -110,6 +130,17 @@ class OntologyBuildTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 build_ontology_project(input_dir, temp_path / "output")
+
+    def test_cli_returns_friendly_error_for_invalid_input(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            stderr = StringIO()
+
+            with self.assertRaises(SystemExit) as error, redirect_stderr(stderr):
+                main([str(temp_path / "missing"), str(temp_path / "output")])
+
+            self.assertEqual(error.exception.code, 1)
+            self.assertIn("Missing required CSV file", stderr.getvalue())
 
 
 if __name__ == "__main__":

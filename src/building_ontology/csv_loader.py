@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 from .models import OntologyModule, OntologyProject, Prefix, Triple
@@ -18,6 +19,8 @@ REQUIRED_PREFIX_COLUMNS = {"prefix", "namespace"}
 REQUIRED_ONTOLOGY_COLUMNS = {"module_id", "ontology_uri", "label", "output_file", "imports"}
 REQUIRED_TRIPLE_COLUMNS = {"module_id", "subject", "predicate", "object", "object_kind", "datatype", "language"}
 ALLOWED_OBJECT_KINDS = {"qname", "iri", "literal"}
+QNAME_PATTERN = re.compile(r"^[A-Za-z_][\\w.-]*:[^\\s]+$")
+LANGUAGE_PATTERN = re.compile(r"^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$")
 
 
 def load_project(input_dir: Path) -> OntologyProject:
@@ -90,6 +93,10 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
             raise CsvProjectError("Only literal objects can define datatype or language")
         if datatype and language:
             raise CsvProjectError("Literal objects cannot define both datatype and language")
+        if datatype and not QNAME_PATTERN.match(datatype):
+            raise CsvProjectError(f"Invalid datatype QName '{datatype}' in {path.name}")
+        if language and not LANGUAGE_PATTERN.match(language):
+            raise CsvProjectError(f"Invalid language tag '{language}' in {path.name}")
         modules[module_id].triples.append(
             Triple(
                 module_id=module_id,

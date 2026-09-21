@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from .csv_loader import CsvProjectError
 from .ontology import build_ontology_project
 
 
@@ -16,10 +17,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args()
-    written_files = build_ontology_project(args.input_dir, args.output_dir)
+    args = parser.parse_args(argv)
+    try:
+        written_files = build_ontology_project(args.input_dir, args.output_dir)
+    except (CsvProjectError, ValueError) as error:
+        parser.exit(1, f"Error: {error}\n")
     for path in written_files:
         print(path)
     return 0
