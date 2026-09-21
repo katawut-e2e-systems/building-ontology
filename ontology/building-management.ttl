@@ -9,8 +9,6 @@
   a owl:Ontology ;
   rdfs:label "Building Management Ontology (Brick + BOT)" ;
   owl:imports
-    <https://w3id.org/bot#> ,
-    <https://brickschema.org/schema/Brick#> ,
     <https://example.com/building-management/modules/site-structure> ,
     <https://example.com/building-management/modules/hvac-systems> ,
     <https://example.com/building-management/modules/electrical-systems> ,

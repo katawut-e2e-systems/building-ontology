@@ -23,3 +23,6 @@ bldg:AHU_Controller_01
 bldg:AHU_01_Supply_Air_Temperature_Sensor
   a brick:Supply_Air_Temperature_Sensor ;
   rdfs:label "AHU-01 Supply Air Temp Sensor" .
+
+bldg:AHU_01
+  brick:hasPoint bldg:AHU_01_Supply_Air_Temperature_Sensor .
