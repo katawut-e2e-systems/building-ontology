@@ -41,6 +41,37 @@ class OntologyBuildTests(unittest.TestCase):
                 self.assertTrue(generated_path.exists(), f"Missing generated file: {generated_path}")
                 self.assertEqual(generated_path.read_text(encoding="utf-8"), expected_path.read_text(encoding="utf-8"))
 
+    def test_build_supports_custom_schema_prefixes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_dir = temp_path / "input"
+            input_dir.mkdir()
+            (input_dir / "prefixes.csv").write_text(
+                "prefix,namespace\n"
+                "rdfs,http://www.w3.org/2000/01/rdf-schema#\n"
+                "owl,http://www.w3.org/2002/07/owl#\n"
+                "custom,https://example.com/custom#\n",
+                encoding="utf-8",
+            )
+            (input_dir / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\n"
+                "custom-module,https://example.com/custom-module,Custom Module,custom.ttl,\n",
+                encoding="utf-8",
+            )
+            (input_dir / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "custom-module,custom:Asset_01,a,custom:Equipment,qname,,\n"
+                "custom-module,custom:Asset_01,rdfs:label,Custom Equipment,literal,,\n",
+                encoding="utf-8",
+            )
+
+            build_ontology_project(input_dir, temp_path / "output")
+
+            rendered = (temp_path / "output" / "custom.ttl").read_text(encoding="utf-8")
+            self.assertIn("@prefix custom: <https://example.com/custom#> .", rendered)
+            self.assertIn("custom:Asset_01", rendered)
+            self.assertIn("custom:Equipment", rendered)
+
 
 if __name__ == "__main__":
     unittest.main()
