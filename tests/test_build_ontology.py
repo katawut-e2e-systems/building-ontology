@@ -29,6 +29,23 @@ class CsvLoaderTests(unittest.TestCase):
             with self.assertRaises(CsvProjectError):
                 load_project(temp_path)
 
+    def test_rejects_non_literal_datatype_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,https://example.com/object,iri,xsd:string,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
 
 class OntologyBuildTests(unittest.TestCase):
     def test_build_example_project_matches_repository_outputs(self) -> None:
@@ -71,6 +88,28 @@ class OntologyBuildTests(unittest.TestCase):
             self.assertIn("@prefix custom: <https://example.com/custom#> .", rendered)
             self.assertIn("custom:Asset_01", rendered)
             self.assertIn("custom:Equipment", rendered)
+
+    def test_rejects_output_paths_outside_requested_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_dir = temp_path / "input"
+            input_dir.mkdir()
+            (input_dir / "prefixes.csv").write_text(
+                "prefix,namespace\nrdfs,http://www.w3.org/2000/01/rdf-schema#\nowl,http://www.w3.org/2002/07/owl#\n",
+                encoding="utf-8",
+            )
+            (input_dir / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\n"
+                "root,https://example.com/root,Root,../outside.ttl,\n",
+                encoding="utf-8",
+            )
+            (input_dir / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ValueError):
+                build_ontology_project(input_dir, temp_path / "output")
 
 
 if __name__ == "__main__":

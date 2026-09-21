@@ -13,13 +13,25 @@ def load_ontology_project(input_dir: str | Path) -> OntologyProject:
 
 def build_ontology_project(input_dir: str | Path, output_dir: str | Path) -> list[Path]:
     project = load_ontology_project(input_dir)
-    output_root = Path(output_dir)
+    output_root = Path(output_dir).resolve()
     written_files: list[Path] = []
 
     for module in project.modules:
-        target = output_root / module.output_file
+        target = _resolve_output_path(output_root, module.output_file)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(render_module(project.prefixes, module), encoding="utf-8")
         written_files.append(target)
 
     return written_files
+
+
+def _resolve_output_path(output_root: Path, output_file: str) -> Path:
+    relative_path = Path(output_file)
+    if relative_path.is_absolute():
+        raise ValueError(f"Ontology output path must be relative: {output_file}")
+    target = (output_root / relative_path).resolve()
+    try:
+        target.relative_to(output_root)
+    except ValueError as error:
+        raise ValueError(f"Ontology output path escapes output directory: {output_file}") from error
+    return target

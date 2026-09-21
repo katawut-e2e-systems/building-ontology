@@ -86,6 +86,8 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
             raise CsvProjectError(f"Invalid triple row in {path.name}: {row}")
         datatype = row["datatype"].strip() or None
         language = row["language"].strip() or None
+        if object_kind != "literal" and (datatype or language):
+            raise CsvProjectError("Only literal objects can define datatype or language")
         if datatype and language:
             raise CsvProjectError("Literal objects cannot define both datatype and language")
         modules[module_id].triples.append(
