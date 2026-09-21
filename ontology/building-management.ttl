@@ -10,3 +10,8 @@
   rdfs:label "Building Management Ontology (Brick + BOT)" ;
   owl:imports
     <https://example.com/building-management/modules/composition> .
+
+<https://example.com/building-management>
+  a owl:Ontology ;
+  rdfs:label "Building Management Ontology (Brick + BOT)" ;
+  owl:imports <https://example.com/building-management/modules/composition> .

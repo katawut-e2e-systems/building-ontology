@@ -1,0 +1,7 @@
+module_id,ontology_uri,label,output_file,imports
+building-management,https://example.com/building-management,Building Management Ontology (Brick + BOT),building-management.ttl,https://example.com/building-management/modules/composition
+site-structure,https://example.com/building-management/modules/site-structure,Building management - site structure module,modules/site-structure.ttl,https://w3id.org/bot#|https://brickschema.org/schema/Brick#
+hvac-systems,https://example.com/building-management/modules/hvac-systems,Building management - HVAC systems module,modules/hvac-systems.ttl,https://brickschema.org/schema/Brick#|https://example.com/building-management/modules/site-structure
+electrical-systems,https://example.com/building-management/modules/electrical-systems,Building management - electrical systems module,modules/electrical-systems.ttl,https://brickschema.org/schema/Brick#|https://example.com/building-management/modules/site-structure
+controls,https://example.com/building-management/modules/controls,Building management - controls module,modules/controls.ttl,https://brickschema.org/schema/Brick#|https://example.com/building-management/modules/hvac-systems
+composition,https://example.com/building-management/modules/composition,Building management - composition module,modules/composition.ttl,https://example.com/building-management/modules/site-structure|https://example.com/building-management/modules/hvac-systems|https://example.com/building-management/modules/electrical-systems|https://example.com/building-management/modules/controls
