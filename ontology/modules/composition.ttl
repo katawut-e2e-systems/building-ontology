@@ -1,0 +1,11 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<https://example.com/building-management/modules/composition>
+  a owl:Ontology ;
+  rdfs:label "Building management - composition module" ;
+  owl:imports
+    <https://example.com/building-management/modules/site-structure> ,
+    <https://example.com/building-management/modules/hvac-systems> ,
+    <https://example.com/building-management/modules/electrical-systems> ,
+    <https://example.com/building-management/modules/controls> .

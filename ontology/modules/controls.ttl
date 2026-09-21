@@ -1,0 +1,27 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix bldg: <https://example.com/building-management#> .
+
+<https://example.com/building-management/modules/controls>
+  a owl:Ontology ;
+  rdfs:label "Building management - controls module" ;
+  owl:imports
+    <https://brickschema.org/schema/Brick#> ,
+    <https://example.com/building-management/modules/hvac-systems> .
+
+bldg:BMS_Server_01
+  a brick:Server ;
+  rdfs:label "BMS Server 01" ;
+  brick:hasPart bldg:AHU_Controller_01 .
+
+bldg:AHU_Controller_01
+  a brick:Controller ;
+  rdfs:label "AHU Controller 01" .
+
+bldg:AHU_01_Supply_Air_Temperature_Sensor
+  a brick:Supply_Air_Temperature_Sensor ;
+  rdfs:label "AHU-01 Supply Air Temp Sensor" .
+
+bldg:AHU_01
+  brick:hasPoint bldg:AHU_01_Supply_Air_Temperature_Sensor .
