@@ -11,7 +11,7 @@
   owl:imports
     <https://w3id.org/bot#> ,
     <https://brickschema.org/schema/Brick#> ,
-    <./modules/site-structure.ttl> ,
-    <./modules/hvac-systems.ttl> ,
-    <./modules/electrical-systems.ttl> ,
-    <./modules/controls.ttl> .
+    <https://example.com/building-management/modules/site-structure> ,
+    <https://example.com/building-management/modules/hvac-systems> ,
+    <https://example.com/building-management/modules/electrical-systems> ,
+    <https://example.com/building-management/modules/controls> .
