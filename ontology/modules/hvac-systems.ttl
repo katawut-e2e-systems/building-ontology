@@ -5,7 +5,10 @@
 
 <https://example.com/building-management/modules/hvac-systems>
   a owl:Ontology ;
-  rdfs:label "Building management - HVAC systems module" .
+  rdfs:label "Building management - HVAC systems module" ;
+  owl:imports
+    <https://brickschema.org/schema/Brick#> ,
+    <https://example.com/building-management/modules/site-structure> .
 
 bldg:AHU_01
   a brick:AHU ;

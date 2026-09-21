@@ -5,7 +5,10 @@
 
 <https://example.com/building-management/modules/controls>
   a owl:Ontology ;
-  rdfs:label "Building management - controls module" .
+  rdfs:label "Building management - controls module" ;
+  owl:imports
+    <https://brickschema.org/schema/Brick#> ,
+    <https://example.com/building-management/modules/hvac-systems> .
 
 bldg:BMS_Server_01
   a brick:Server ;
