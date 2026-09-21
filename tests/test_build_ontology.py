@@ -102,6 +102,77 @@ class CsvLoaderTests(unittest.TestCase):
             with self.assertRaises(CsvProjectError):
                 load_project(temp_path)
 
+    def test_rejects_invalid_qname_object(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,not-a-qname,qname,,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
+    def test_rejects_invalid_iri_object(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,not an iri,iri,,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
+    def test_rejects_literal_with_conflicting_datatype_and_language(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text(
+                "prefix,namespace\nex,https://example.com/#\nxsd,http://www.w3.org/2001/XMLSchema#\n",
+                encoding="utf-8",
+            )
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,value,literal,xsd:string,en\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
+    def test_rejects_invalid_datatype_qname(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,value,literal,not-a-qname,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
 
 class OntologyBuildTests(unittest.TestCase):
     def test_build_example_project_matches_repository_outputs(self) -> None:
