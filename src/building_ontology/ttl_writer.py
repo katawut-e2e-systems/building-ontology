@@ -12,6 +12,11 @@ class TurtleRenderError(ValueError):
 def render_module(prefixes: list[Prefix], module: OntologyModule) -> str:
     lines: list[str] = []
     used_prefixes = _used_prefixes(module)
+    declared_prefixes = {prefix.prefix for prefix in prefixes}
+    missing_prefixes = used_prefixes.difference(declared_prefixes)
+    if missing_prefixes:
+        missing = ", ".join(sorted(missing_prefixes))
+        raise TurtleRenderError(f"Module '{module.module_id}' references undeclared prefixes: {missing}")
     for prefix in prefixes:
         if prefix.prefix not in used_prefixes:
             continue

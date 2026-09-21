@@ -26,8 +26,9 @@ IRI_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"{}|^`\\]+$')
 
 def load_project(input_dir: Path) -> OntologyProject:
     prefixes = _load_prefixes(input_dir / PREFIX_FILE)
+    declared_prefixes = {prefix.prefix for prefix in prefixes}
     modules = _load_modules(input_dir / ONTOLOGY_FILE)
-    _load_triples(input_dir / TRIPLE_FILE, modules)
+    _load_triples(input_dir / TRIPLE_FILE, modules, declared_prefixes)
     return OntologyProject(prefixes=prefixes, modules=list(modules.values()))
 
 
@@ -72,7 +73,7 @@ def _load_modules(path: Path) -> dict[str, OntologyModule]:
     return modules
 
 
-def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
+def _load_triples(path: Path, modules: dict[str, OntologyModule], declared_prefixes: set[str]) -> None:
     rows = _read_rows(path, REQUIRED_TRIPLE_COLUMNS)
     for row in rows:
         module_id = row["module_id"].strip()
@@ -92,6 +93,8 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
             raise CsvProjectError(f"Invalid subject '{subject}' in {path.name}")
         if not _is_valid_predicate(predicate):
             raise CsvProjectError(f"Invalid predicate '{predicate}' in {path.name}")
+        _validate_declared_prefix(path, subject, declared_prefixes, "subject")
+        _validate_declared_prefix(path, predicate, declared_prefixes, "predicate")
         datatype = row["datatype"].strip() or None
         language = row["language"].strip() or None
         if object_kind != "literal" and (datatype or language):
@@ -102,10 +105,14 @@ def _load_triples(path: Path, modules: dict[str, OntologyModule]) -> None:
             raise CsvProjectError(f"Invalid QName object '{object_value}' in {path.name}")
         if object_kind == "iri" and not IRI_PATTERN.match(object_value):
             raise CsvProjectError(f"Invalid IRI object '{object_value}' in {path.name}")
+        if object_kind == "qname":
+            _validate_declared_prefix(path, object_value, declared_prefixes, "object")
         if datatype and not QNAME_PATTERN.match(datatype):
             raise CsvProjectError(f"Invalid datatype QName '{datatype}' in {path.name}")
         if language and not LANGUAGE_PATTERN.match(language):
             raise CsvProjectError(f"Invalid language tag '{language}' in {path.name}")
+        if datatype:
+            _validate_declared_prefix(path, datatype, declared_prefixes, "datatype")
         modules[module_id].triples.append(
             Triple(
                 module_id=module_id,
@@ -147,3 +154,11 @@ def _is_valid_qname(value: str) -> bool:
 
 def _is_wrapped_iri(value: str) -> bool:
     return value.startswith("<") and value.endswith(">") and bool(IRI_PATTERN.match(value[1:-1]))
+
+
+def _validate_declared_prefix(path: Path, value: str, declared_prefixes: set[str], field_name: str) -> None:
+    if value == "a" or value.startswith("<") or ":" not in value:
+        return
+    prefix = value.split(":", maxsplit=1)[0]
+    if prefix not in declared_prefixes:
+        raise CsvProjectError(f"Undeclared prefix '{prefix}' used in {field_name} '{value}' in {path.name}")

@@ -66,6 +66,23 @@ class CsvLoaderTests(unittest.TestCase):
             with self.assertRaises(CsvProjectError):
                 load_project(temp_path)
 
+    def test_rejects_undeclared_qname_prefix(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            (temp_path / "prefixes.csv").write_text("prefix,namespace\nex,https://example.com/#\n", encoding="utf-8")
+            (temp_path / "ontologies.csv").write_text(
+                "module_id,ontology_uri,label,output_file,imports\nroot,https://example.com/root,Root,root.ttl,\n",
+                encoding="utf-8",
+            )
+            (temp_path / "triples.csv").write_text(
+                "module_id,subject,predicate,object,object_kind,datatype,language\n"
+                "root,ex:s,ex:p,missing:Thing,qname,,\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(CsvProjectError):
+                load_project(temp_path)
+
 
 class OntologyBuildTests(unittest.TestCase):
     def test_build_example_project_matches_repository_outputs(self) -> None:
